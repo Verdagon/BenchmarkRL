@@ -20,16 +20,16 @@ struct Level {
 
     // An index of what units are at what locations, so a unit can easily
     // see whats around it.
-    // unit_by_location HashMap<Location, &!Unit>;
+    // unit_by_location HashMap<Location, &Unit>;
 }
 
 // impl Level {
-//     pub fn find_random_walkable_unoccuped_location(self: &Level, rand: &mut LCGRand) -> Location {
+//     pub func find_random_walkable_unoccuped_location(self: &Level, rand: &mut LCGRand) -> Location {
 //         let walkable_locations = self.get_walkable_locations();
 //         let loc_index = rand.next() % (walkable_locations.len() as u32);
 //         return walkable_locations[loc_index as usize];
 //     }
-//     pub fn get_adjacent_locations(
+//     pub func get_adjacent_locations(
 //         &self,
 //         center: Location,
 //         consider_corners_adjacent: bool,
@@ -51,7 +51,7 @@ struct Level {
 //     // will return false, because it's considering units in determining walkability,
 //     // and that unit is in the way.
 //     // If `consider_units` is false, it ignores any unit that's there.
-//     pub fn loc_is_walkable(&self, loc: Location, consider_units: bool) -> bool {
+//     pub func loc_is_walkable(&self, loc: Location, consider_units: bool) -> bool {
 //         if !self.tiles[&loc].walkable {
 //             return false;
 //         }
@@ -63,7 +63,7 @@ struct Level {
 //         return true;
 //     }
 
-//     pub fn get_adjacent_walkable_locations(
+//     pub func get_adjacent_walkable_locations(
 //         &self,
 //         center: Location,
 //         consider_units: bool,
@@ -79,7 +79,7 @@ struct Level {
 //         return result;
 //     }
 
-//     pub fn find_path(
+//     pub func find_path(
 //         &self,
 //         from_loc: Location,
 //         to_loc: Location,
@@ -95,7 +95,7 @@ struct Level {
 //         );
 //     }
 
-//     pub fn can_see(&self, from_loc: Location, to_loc: Location, sight_range: i32) -> bool {
+//     pub func can_see(&self, from_loc: Location, to_loc: Location, sight_range: i32) -> bool {
 //         let straight_distance = from_loc.diagonal_manhattan_distance_100(to_loc);
 //         let maximum_distance = std::cmp::min(straight_distance, sight_range);
 
@@ -137,7 +137,7 @@ struct Level {
 
 //     // This gets all the locations within sight with a breadth-first search.
 //     // It follows the same logic as the above `can_see` function.
-//     pub fn get_locations_within_sight(
+//     pub func get_locations_within_sight(
 //         &self,
 //         start_loc: Location,
 //         include_self: bool,
@@ -215,13 +215,13 @@ struct Level {
 //         return visible_locs;
 //     }
 
-//     pub fn forget_unit(&mut self, unit_index: generational_arena::Index, loc: Location) {
+//     pub func forget_unit(&mut self, unit_index: generational_arena::Index, loc: Location) {
 //         assert!(self.unit_by_location.contains_key(&loc));
 //         assert!(self.unit_by_location[&loc] == unit_index);
 //         self.unit_by_location.remove(&loc);
 //     }
 
-//     pub fn get_walkable_locations(&self) -> Vec<Location> {
+//     pub func get_walkable_locations(&self) -> Vec<Location> {
 //         let mut result = Vec::new();
 //         for (&loc, tile) in &self.tiles {
 //             if tile.walkable {
@@ -231,7 +231,7 @@ struct Level {
 //         return result;
 //     }
 
-//     pub fn move_unit(&mut self, unit: &mut Unit, new_loc: Location) {
+//     pub func move_unit(&mut self, unit: &mut Unit, new_loc: Location) {
 //         assert!(!self.unit_by_location.contains_key(&new_loc));
 //         self.unit_by_location.remove(&unit.loc);
 //         unit.loc = new_loc;
@@ -239,7 +239,7 @@ struct Level {
 //     }
 
 //     // Increment the registration count for the given tile.
-//     pub fn register_acting_tile(&mut self, loc: Location) {
+//     pub func register_acting_tile(&mut self, loc: Location) {
 //         let previous_num_registrations =
 //             self.acting_tile_locations.get(&loc).map(|&x| x).or_else(|| Some(0)).expect("");
 //         let new_num_registrations = previous_num_registrations + 1;
@@ -248,7 +248,7 @@ struct Level {
 
 //     // Decrement the registration count for the given tile, and if it hits zero,
 //     // dont consider it an acting tile anymore.
-//     pub fn unregister_acting_tile(&mut self, loc: Location) {
+//     pub func unregister_acting_tile(&mut self, loc: Location) {
 //         let previous_num_registrations =
 //             self.acting_tile_locations.get(&loc).expect("Expected registration!");
 //         let new_num_registrations = previous_num_registrations - 1;

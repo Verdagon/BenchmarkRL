@@ -1,4 +1,4 @@
-// fn get_int_arg(args: &Vec<String>, param_str: &str, default: i32) -> i32 {
+// func get_int_arg(args: &Vec<String>, param_str: &str, default: i32) -> i32 {
 //     match args.iter().position(|x| x == param_str) {
 //         None => {
 //             return default;
@@ -23,7 +23,7 @@
 //     };
 // }
 
-// fn main() {
+// func main() {
 //     let args: Vec<String> = env::args().collect();
 
 //     match args.iter().position(|x| x == "--help") {
@@ -68,20 +68,20 @@
 // }
 
 
-fn main() int export {
+exported func main() int {
   //print("hello\u001bworld\n");
   //print("\u001b[1;34mThis\u000a is a blue text.\u001b[0m");
   //ret 0;
   width =
     if (numMainArgs() >= 2) {
       maybeWidthAsInt = int(getMainArg(1).slice());
-      = if (maybeWidthAsInt.isEmpty()) {
-          panic("First arg should be a number!");
-        } else {
-          = maybeWidthAsInt.get();
-        }
+      if (maybeWidthAsInt.isEmpty()) {
+        panic("First arg should be a number!")
+      } else {
+        maybeWidthAsInt.get()
+      }
     } else {
-      = 150;
+      150
     };
   height = width;
   seed = 44; // DIFFERENCE
@@ -90,8 +90,8 @@ fn main() int export {
     width,
     height,
     10,
-    true,
+    false,
     100);
 // 
-  = 0;
+  0
 }

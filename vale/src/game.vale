@@ -14,16 +14,13 @@
 struct LCGRand {
     seed! int; // DIFFERENCE add an unsigned!
 }
-fn next(self &!LCGRand) int {
-    a = 1103515245;
+func next(self &LCGRand) int {
+    a = 7901;
     c = 12345;
-    m = 2147483647;
+    m = 65535;
     set self.seed = (a * self.seed + c) mod m;
 
-    // DIFFERENCE take this out, use unsigned instead!
-    set self.seed = abs(self.seed);
-
-    ret self.seed;
+    return self.seed;
 }
 
 
@@ -32,8 +29,8 @@ fn next(self &!LCGRand) int {
 // pub type GameMutator = Box<dyn Fn(&mut LCGRand, &mut Game)>;
 
 // // Makes a GameMutator that does nothing.
-// pub fn do_nothing_game_mutator() -> GameMutator {
-//     ret Box::new(|_rand, _game| {});
+// pub func do_nothing_game_mutator() -> GameMutator {
+//     return Box::new(|_rand, _game| {});
 // }
 
 
@@ -45,22 +42,22 @@ struct Game {
 }
 
 // impl Game {
-    fn get_current_level(self &Game) &Level {
+func get_current_level(self &Game) &Level {
         // ret &self.levels[self.get_player().level_index];
         self.levels.get(0)
     }
-//     pub fn get_current_level_mut(&mut self) -> &mut Level {
+//     pub func get_current_level_mut(&mut self) -> &mut Level {
 //         let level_index = self.get_player().level_index;
-//         ret &mut self.levels[level_index];
+//         return &mut self.levels[level_index];
 //     }
-//     pub fn get_player_index(&self) -> generational_arena::Index {
-//         ret self.player_index.expect("No player yet!");
+//     pub func get_player_index(&self) -> generational_arena::Index {
+//         return self.player_index.expect("No player yet!");
 //     }
-//     pub fn get_player(&self) -> &Unit {
-//         ret &self.units[self.get_player_index()];
+//     pub func get_player(&self) -> &Unit {
+//         return &self.units[self.get_player_index()];
 //     }
 
-//     pub fn add_unit_to_level(
+//     pub func add_unit_to_level(
 //         &mut self,
 //         level_index: usize,
 //         loc: Location,
@@ -84,10 +81,10 @@ struct Game {
 //             .insert(loc, unit_index);
 //         let unit = &mut self.units[unit_index];
 //         unit.index = Some(unit_index);
-//         ret unit_index;
+//         return unit_index;
 //     }
 
-//     pub fn damage_unit(
+//     pub func damage_unit(
 //             &mut self,
 //             rand: &mut LCGRand,
 //             unit_index: generational_arena::Index,
@@ -103,7 +100,7 @@ struct Game {
 //         }
 //     }
 
-//     pub fn kill_unit(
+//     pub func kill_unit(
 //             &mut self,
 //             rand: &mut LCGRand,
 //             unit_index: generational_arena::Index) {
@@ -130,44 +127,44 @@ struct Game {
 //         self.remove_unit(unit_index);
 //     }
 
-//     pub fn remove_unit(&mut self, unit_index: generational_arena::Index) {
+//     pub func remove_unit(&mut self, unit_index: generational_arena::Index) {
 //         let loc = self.units[unit_index].loc;
 //         self.get_current_level_mut().forget_unit(unit_index, loc);
 //         self.units.remove(unit_index);
 //     }
 
-//     pub fn get_tile_component_mut<T: ITileComponent>(
+//     pub func get_tile_component_mut<T: ITileComponent>(
 //             &mut self,
 //             tile_loc: Location,
 //             tile_component_index: generational_arena::Index)
 //     -> &mut T {
 //         let tile = self.get_current_level_mut().tiles.get_mut(&tile_loc).expect("");
 //         let icomponent = tile.components.get_mut(tile_component_index).expect("wat");
-//         ret &mut *icomponent.downcast_mut::<T>().expect("");
+//         return &mut *icomponent.downcast_mut::<T>().expect("");
 //     }
 // }
 
 // Get all the locations adjacent to `center`.
-fn get_pattern_adjacent_locations(
+func get_pattern_adjacent_locations(
     center Location,
     consider_corners_adjacent bool)
 List<Location> {
     result = List<Location>();
-    result!.add(Location(center.x - 1, center.y));
-    result!.add(Location(center.x, center.y + 1));
-    result!.add(Location(center.x, center.y - 1));
-    result!.add(Location(center.x + 1, center.y));
+    result.add(Location(center.x - 1, center.y));
+    result.add(Location(center.x, center.y + 1));
+    result.add(Location(center.x, center.y - 1));
+    result.add(Location(center.x + 1, center.y));
     if (consider_corners_adjacent) {
-        result!.add(Location(center.x - 1, center.y - 1));
-        result!.add(Location(center.x - 1, center.y + 1));
-        result!.add(Location(center.x + 1, center.y - 1));
-        result!.add(Location(center.x + 1, center.y + 1));
+        result.add(Location(center.x - 1, center.y - 1));
+        result.add(Location(center.x - 1, center.y + 1));
+        result.add(Location(center.x + 1, center.y - 1));
+        result.add(Location(center.x + 1, center.y + 1));
     }
-    ret result;
+    return result;
 }
 
 // Get all the locations adjacent to any of the ones in `source_locs`.
-fn get_pattern_locations_adjacent_to_any(
+func get_pattern_locations_adjacent_to_any(
     source_locs &HashSet<Location, LocationHasher, LocationEquator>,
     include_source_locs bool,
     consider_corners_adjacent bool)
@@ -175,20 +172,20 @@ HashSet<Location, LocationHasher, LocationEquator> {
     result =
         HashSet<Location, LocationHasher, LocationEquator>(
             LocationHasher(), LocationEquator());
-    each (source_locs) (original_location){
+    foreach original_location in source_locs {
         adjacents =
             get_pattern_adjacent_locations(original_location, consider_corners_adjacent);
         if (include_source_locs) {
-            adjacents!.add(original_location);
+            adjacents.add(original_location);
         }
-        each (&adjacents) (adjacent_location){
-            if (include_source_locs or not source_locs.has(adjacent_location)) {
+        foreach adjacent_location in adjacents {
+            if (include_source_locs or not source_locs.contains(adjacent_location)) {
                 // DIFFERENCE our set doesnt let you insert if already there
-                if (not result.has(adjacent_location)) {
-                    result!.add(adjacent_location);
+                if (not result.contains(adjacent_location)) {
+                    result.add(adjacent_location);
                 }
             }
         }
     }
-    ret result;
+    return result;
 }
