@@ -1,14 +1,14 @@
-// use std::iter::FromIterator;
-// use std::cmp;
-
-// use rustc_hash::FxHashMap;
-// use rustc_hash::FxHashSet;
-// use generational_arena::Arena;
-
-// use crate::game::*;
-// use crate::location::*;
-// use crate::level::*;
-// use crate::tile::*;
+/// // use std::iter::FromIterator;
+/// // use std::cmp;
+/// 
+/// // use rustc_hash::FxHashMap;
+/// // use rustc_hash::FxHashSet;
+/// // use generational_arena::Arena;
+/// 
+/// // use crate::game::*;
+/// // use crate::location::*;
+/// // use crate::level::*;
+/// // use crate::tile::*;
 func make_level(
   max_width int,
   max_height int,
@@ -163,26 +163,26 @@ List<List<bool>> {
     y = 0;
     while y < max_height {
 
-    num_walkable_neighbors = 0;
+      num_walkable_neighbors = 0;
 
-    neighbor_x = max(0, x - 1);
-    while neighbor_x < min(max_width - 1, x + 1 + 1) {
+      neighbor_x = max(0, x - 1);
+      while neighbor_x < min(max_width - 1, x + 1 + 1) {
 
-      neighbor_y = max(0, y - 1);
-      while neighbor_y < min(max_height - 1, y + 1 + 1) {
+        neighbor_y = max(0, y - 1);
+        while neighbor_y < min(max_height - 1, y + 1 + 1) {
 
-      if walkabilities.get(neighbor_x).get(neighbor_y) {
-        set num_walkable_neighbors = num_walkable_neighbors + 1;
+        if walkabilities.get(neighbor_x).get(neighbor_y) {
+          set num_walkable_neighbors = num_walkable_neighbors + 1;
+        }
+
+        set neighbor_y = neighbor_y + 1;
+        }
+        set neighbor_x = neighbor_x + 1;
       }
 
-      set neighbor_y = neighbor_y + 1;
-      }
-      set neighbor_x = neighbor_x + 1;
-    }
+      new_walkabilities.get(x).set(y, num_walkable_neighbors >= 5);
 
-    new_walkabilities.get(x).set(y, num_walkable_neighbors >= 5);
-
-    set y = y + 1;
+      set y = y + 1;
     }
 
     set x = x + 1;
@@ -193,6 +193,7 @@ List<List<bool>> {
   // swap method here?
   return new_walkabilities;
 }
+
 func connect_all_rooms(
   rand &LCGRand,
   walkabilities &List<List<bool>>,
@@ -212,6 +213,7 @@ func connect_all_rooms(
   }
   0;
 }
+
 func identify_rooms(
   walkabilities &List<List<bool>>,
   consider_corners_adjacent bool)
@@ -481,7 +483,8 @@ func connect_rooms(
 
   0;
 }
-func get_hash_set_random_nth<T, H, E>(
+
+func get_hash_set_random_nth<T Ref imm, H, E>(
   rand &LCGRand,
   sett &HashSet<T, H, E>)
 Opt<T> {
@@ -494,6 +497,7 @@ Opt<T> {
   result = Some(keys[ind]);
   return result;
 }
+
 func get_adjacent_locations(
   width int,
   height int,
@@ -517,6 +521,7 @@ List<Location> {
 
   return result;
 }
+
 func get_adjacent_walkable_locations(
   walkabilities &List<List<bool>>,
   center Location,

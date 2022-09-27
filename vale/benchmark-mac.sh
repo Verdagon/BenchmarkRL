@@ -6,21 +6,14 @@ if [ "$1" == "" ] ; then
 fi
 VALE_COMPILER_DIR="$1"
 
-if [ "$2" == "" ] ; then
-  STDLIB_DIR="$VALE_COMPILER_DIR/stdlib"
-  echo "Defaulting to stdlib in $STDLIB_DIR."
-else
-  STDLIB_DIR="$2"
-fi
-
 MAP_SIZE=500
 
 
-$VALE_COMPILER_DIR/valec build benchmarkrl=src stdlib=$STDLIB_DIR/src --output_dir build --region_override unsafe-fast -o benchmarkRL-unsafefast || exit 1
+$VALE_COMPILER_DIR/valec build benchmarkrl=src --output_dir build --region_override unsafe-fast -o benchmarkRL-unsafefast || exit 1
 cp build/benchmarkRL-unsafefast .
-$VALE_COMPILER_DIR/valec build benchmarkrl=src stdlib=$STDLIB_DIR/src --output_dir build --region_override naive-rc -o benchmarkRL-naiverc || exit 1
+$VALE_COMPILER_DIR/valec build benchmarkrl=src --output_dir build --region_override naive-rc -o benchmarkRL-naiverc || exit 1
 cp build/benchmarkRL-naiverc .
-$VALE_COMPILER_DIR/valec build benchmarkrl=src stdlib=$STDLIB_DIR/src --output_dir build --region_override resilient-v3 -o benchmarkRL-resilientv3 || exit 1
+$VALE_COMPILER_DIR/valec build benchmarkrl=src --output_dir build --region_override resilient-v3 -o benchmarkRL-resilientv3 || exit 1
 cp build/benchmarkRL-resilientv3 .
 
 # Now, begin the benchmarking!

@@ -43,9 +43,10 @@ struct Game {
 
 // impl Game {
 func get_current_level(self &Game) &Level {
-        // ret &self.levels[self.get_player().level_index];
-        self.levels.get(0)
-    }
+    // ret &self.levels[self.get_player().level_index];
+    self.levels.get(0)
+}
+
 //     pub func get_current_level_mut(&mut self) -> &mut Level {
 //         let level_index = self.get_player().level_index;
 //         return &mut self.levels[level_index];
