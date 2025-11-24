@@ -13,6 +13,7 @@ use std::num::Wrapping;
 // From https://stackoverflow.com/a/3062783
 pub struct LCGRand {
     pub seed: u32,
+    pub call_count: u32,
 }
 impl LCGRand {
     pub fn next(&mut self) -> u32 {
@@ -20,6 +21,7 @@ impl LCGRand {
         let c = 12345;
         let m = 0x7FFFFFFF;
         self.seed = ((Wrapping(a) * Wrapping(self.seed) + Wrapping(c)) % Wrapping(m)).0;
+        self.call_count += 1;
         return self.seed;
     }
 }
@@ -171,7 +173,13 @@ pub fn get_pattern_locations_adjacent_to_any(
     consider_corners_adjacent: bool,
 ) -> FxHashSet<Location> {
     let mut result = FxHashSet::default();
-    for &original_location in source_locs {
+    // Sort to ensure deterministic iteration
+    let mut sorted_source_locs: Vec<Location> = source_locs.iter().cloned().collect();
+    sorted_source_locs.sort_by(|a, b| match a.x.cmp(&b.x) {
+        std::cmp::Ordering::Equal => a.y.cmp(&b.y),
+        other => other,
+    });
+    for original_location in sorted_source_locs {
         let mut adjacents =
             get_pattern_adjacent_locations(original_location, consider_corners_adjacent);
         if include_source_locs {

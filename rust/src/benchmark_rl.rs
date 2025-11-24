@@ -134,13 +134,13 @@ pub fn setup(
 ) -> Game {
     let mut game = Game::new(Arena::new(), Vec::new(), None);
 
-    for _ in 0..num_levels {
+    for _level_num in 0..num_levels {
         let level_index = game.levels.len();
         game.levels.push(make_level(max_width, max_height, &mut rand));
 
         // Add one goblin for every 10 walkable spaces in the level.
         let num_walkable_locations = game.levels[level_index].get_walkable_locations().len();
-        for _ in 0..(num_walkable_locations / 10) {
+        for _goblin_num in 0..(num_walkable_locations / 10) {
             let new_unit_loc =
                 game.levels[level_index].find_random_walkable_unoccuped_location(&mut rand);
 
@@ -262,11 +262,12 @@ pub fn benchmark_rl(
     num_levels: i32,
     should_display: bool,
     turn_delay: i32,
+    only_level: bool,
 ) {
-    let mut rand = LCGRand { seed: seed as u32 };
+    let mut rand = LCGRand { seed: seed as u32, call_count: 0 };
     let mut game = setup(&mut rand, level_width, level_height, num_levels);
 
-    let mut maybe_screen = if should_display {
+    let mut maybe_screen = if should_display || only_level {
         Some(Screen::new(
             game.get_current_level().max_width as usize,
             game.get_current_level().max_height as usize,
@@ -274,6 +275,45 @@ pub fn benchmark_rl(
     } else {
         None
     };
+
+    if only_level {
+        println!("Level generated with seed {}:", seed);
+        println!();
+
+        // Display as ASCII
+        for y in 0..game.get_current_level().max_height {
+            let mut line = String::new();
+            for x in 0..game.get_current_level().max_width {
+                let loc = Location::new(x, y);
+                let mut ch = ' ';
+
+                if let Some(tile) = game.get_current_level().tiles.get(&loc) {
+                    match tile.display_class.as_str() {
+                        "dirt" | "grass" => ch = '.',
+                        "wall" => ch = '#',
+                        _ => ch = '?',
+                    }
+                }
+
+                if let Some(&unit_index) = game.get_current_level().unit_by_location.get(&loc) {
+                    let unit = &game.units[unit_index];
+                    match unit.display_class.as_str() {
+                        "goblin" => ch = 'g',
+                        "chronomancer" => ch = '@',
+                        _ => ch = '?',
+                    }
+                }
+
+                line.push(ch);
+            }
+            println!("{}", line);
+        }
+        println!();
+        println!("Legend: # = wall, . = floor, g = goblin, @ = player");
+        println!("Press Ctrl+C to exit.");
+        sleep(Duration::new(3600, 0)); // Wait an hour so user can see it
+        return;
+    }
 
     loop {
         turn(&mut rand, &mut game);

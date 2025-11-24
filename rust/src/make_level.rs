@@ -121,8 +121,8 @@ fn smooth_level(max_width: i32, max_height: i32, walkabilities: &mut Vec<Vec<boo
         for y in 0..max_height {
             let mut num_walkable_neighbors = 0;
 
-            for neighbor_x in cmp::max(0, x - 1)..cmp::min(max_width - 1, x + 1 + 1) {
-                for neighbor_y in cmp::max(0, y - 1)..cmp::min(max_height - 1, y + 1 + 1) {
+            for neighbor_x in cmp::max(0, x - 1)..cmp::min(max_width, x + 1 + 1) {
+                for neighbor_y in cmp::max(0, y - 1)..cmp::min(max_height, y + 1 + 1) {
                     if walkabilities[neighbor_x as usize][neighbor_y as usize] {
                         num_walkable_neighbors = num_walkable_neighbors + 1;
                     }
@@ -138,15 +138,21 @@ fn smooth_level(max_width: i32, max_height: i32, walkabilities: &mut Vec<Vec<boo
 }
 
 fn connect_all_rooms(
-    mut rand: &mut LCGRand,
-    mut walkabilities: &mut Vec<Vec<bool>>,
+    rand: &mut LCGRand,
+    walkabilities: &mut Vec<Vec<bool>>,
     consider_corners_adjacent: bool,
 ) {
-    let mut rooms = identify_rooms(&mut walkabilities, consider_corners_adjacent);
-    connect_rooms(&mut rand, &mut rooms);
+    let mut rooms = identify_rooms(walkabilities, consider_corners_adjacent);
+    connect_rooms(rand, &mut rooms);
     for i in 0..rooms.len() {
         let new_room = &rooms[i];
-        for loc in new_room {
+        // Sort to ensure deterministic iteration
+        let mut sorted_locs: Vec<Location> = new_room.iter().cloned().collect();
+        sorted_locs.sort_by(|a, b| match a.x.cmp(&b.x) {
+            std::cmp::Ordering::Equal => a.y.cmp(&b.y),
+            other => other,
+        });
+        for loc in sorted_locs {
             walkabilities[loc.x as usize][loc.y as usize] = true;
         }
     }
@@ -173,7 +179,13 @@ pub fn identify_rooms(
                 );
                 let new_room_index = rooms.len();
                 rooms.push(connected_locations.clone());
-                for connected_location in connected_locations {
+                // Sort to ensure deterministic iteration
+                let mut sorted_connected_locs: Vec<Location> = connected_locations.iter().cloned().collect();
+                sorted_connected_locs.sort_by(|a, b| match a.x.cmp(&b.x) {
+                    std::cmp::Ordering::Equal => a.y.cmp(&b.y),
+                    other => other,
+                });
+                for connected_location in sorted_connected_locs {
                     assert!(!room_index_by_location.contains_key(&connected_location));
                     room_index_by_location.insert(connected_location, new_room_index);
                 }
@@ -194,11 +206,14 @@ pub fn find_all_connected_locations(
     connected_with_unexplored_neighbors.insert(start_location);
 
     while connected_with_unexplored_neighbors.len() > 0 {
-        let current = connected_with_unexplored_neighbors
-            .iter()
-            .nth(0)
-            .expect("")
-            .clone();
+        // Sort to ensure deterministic selection
+        let mut neighbors_vec: Vec<Location> =
+            connected_with_unexplored_neighbors.iter().cloned().collect();
+        neighbors_vec.sort_by(|a, b| match a.x.cmp(&b.x) {
+            std::cmp::Ordering::Equal => a.y.cmp(&b.y),
+            other => other,
+        });
+        let current = neighbors_vec[0];
         assert!(!connected_with_explored_neighbors.contains(&current));
 
         connected_with_unexplored_neighbors.remove(&current);
@@ -220,15 +235,21 @@ pub fn find_all_connected_locations(
     return connected_with_explored_neighbors;
 }
 
-pub fn connect_rooms(mut rand: &mut LCGRand, rooms: &mut Vec<FxHashSet<Location>>) {
+pub fn connect_rooms(rand: &mut LCGRand, rooms: &mut Vec<FxHashSet<Location>>) {
     // This function will be adding the corridors to `rooms`.
 
     let mut room_index_by_location = FxHashMap::<Location, usize>::default();
 
     for room_index in 0..rooms.len() {
         let room = &rooms[room_index];
-        for room_floor_loc in room {
-            room_index_by_location.insert(*room_floor_loc, room_index);
+        // Sort to ensure deterministic iteration
+        let mut sorted_room_locs: Vec<Location> = room.iter().cloned().collect();
+        sorted_room_locs.sort_by(|a, b| match a.x.cmp(&b.x) {
+            std::cmp::Ordering::Equal => a.y.cmp(&b.y),
+            other => other,
+        });
+        for room_floor_loc in sorted_room_locs {
+            room_index_by_location.insert(room_floor_loc, room_index);
         }
     }
 
@@ -252,21 +273,38 @@ pub fn connect_rooms(mut rand: &mut LCGRand, rooms: &mut Vec<FxHashSet<Location>
         if distinct_regions.len() < 2 {
             break;
         }
-        let mut two_regions_iter = distinct_regions.iter();
-        let region_a = *two_regions_iter.next().expect("wat");
-        let region_b = *two_regions_iter.next().expect("wat");
+        // Sort to ensure deterministic order
+        let mut sorted_regions: Vec<usize> = distinct_regions.iter().cloned().collect();
+        sorted_regions.sort();
+        let region_a = sorted_regions[0];
+        let region_b = sorted_regions[1];
 
-        let region_a_room_index =
-            *get_hash_set_random_nth(&mut rand, &room_indices_by_region_num[&region_a])
-                .expect("wat");
+        // Sort room indices to ensure deterministic selection
+        let mut region_a_room_indices: Vec<usize> =
+            room_indices_by_region_num[&region_a].iter().cloned().collect();
+        region_a_room_indices.sort();
+        let region_a_room_index = region_a_room_indices[(rand.next() as usize) % region_a_room_indices.len()];
+
         let region_a_room = &rooms[region_a_room_index];
-        let region_a_location = *get_hash_set_random_nth(&mut rand, &region_a_room).expect("wat");
+        let mut region_a_locations: Vec<Location> = region_a_room.iter().cloned().collect();
+        region_a_locations.sort_by(|a, b| match a.x.cmp(&b.x) {
+            std::cmp::Ordering::Equal => a.y.cmp(&b.y),
+            other => other,
+        });
+        let region_a_location = region_a_locations[(rand.next() as usize) % region_a_locations.len()];
 
-        let region_b_room_index =
-            *get_hash_set_random_nth(&mut rand, &room_indices_by_region_num[&region_b])
-                .expect("wat");
+        let mut region_b_room_indices: Vec<usize> =
+            room_indices_by_region_num[&region_b].iter().cloned().collect();
+        region_b_room_indices.sort();
+        let region_b_room_index = region_b_room_indices[(rand.next() as usize) % region_b_room_indices.len()];
+
         let region_b_room = &rooms[region_b_room_index];
-        let region_b_location = *get_hash_set_random_nth(&mut rand, &region_b_room).expect("wat");
+        let mut region_b_locations: Vec<Location> = region_b_room.iter().cloned().collect();
+        region_b_locations.sort_by(|a, b| match a.x.cmp(&b.x) {
+            std::cmp::Ordering::Equal => a.y.cmp(&b.y),
+            other => other,
+        });
+        let region_b_location = region_b_locations[(rand.next() as usize) % region_b_locations.len()];
 
         // Now lets drive from region_a_location to region_b_location, and see what happens on the
         // way there.
@@ -330,7 +368,10 @@ pub fn connect_rooms(mut rand: &mut LCGRand, rooms: &mut Vec<FxHashSet<Location>
 
         let mut room_indices_in_combined_region = FxHashSet::default();
         room_indices_in_combined_region.insert(new_room_index);
-        for path_adjacent_region in path_adjacent_regions {
+        // Sort to ensure deterministic iteration
+        let mut sorted_path_adjacent_regions: Vec<usize> = path_adjacent_regions.iter().cloned().collect();
+        sorted_path_adjacent_regions.sort();
+        for path_adjacent_region in sorted_path_adjacent_regions {
             if path_adjacent_region == combined_region {
                 // The new room is already part of this region
                 continue;
@@ -347,9 +388,6 @@ pub fn connect_rooms(mut rand: &mut LCGRand, rooms: &mut Vec<FxHashSet<Location>
     }
 }
 
-fn get_hash_set_random_nth<'a, T>(rand: &mut LCGRand, set: &'a FxHashSet<T>) -> Option<&'a T> {
-    return set.iter().nth((rand.next() as usize) % set.len());
-}
 
 fn get_adjacent_locations(
     width: i32,

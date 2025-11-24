@@ -27,7 +27,8 @@ pub struct Level {
 impl Level {
     pub fn find_random_walkable_unoccuped_location(self: &Level, rand: &mut LCGRand) -> Location {
         let walkable_locations = self.get_walkable_locations();
-        let loc_index = rand.next() % (walkable_locations.len() as u32);
+        let rng_value = rand.next();
+        let loc_index = rng_value % (walkable_locations.len() as u32);
         return walkable_locations[loc_index as usize];
     }
     pub fn get_adjacent_locations(
@@ -229,6 +230,13 @@ impl Level {
                 result.push(loc);
             }
         }
+        // Sort to ensure deterministic order across implementations
+        result.sort_by(|a, b| {
+            match a.x.cmp(&b.x) {
+                std::cmp::Ordering::Equal => a.y.cmp(&b.y),
+                other => other,
+            }
+        });
         return result;
     }
 

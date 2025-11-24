@@ -1,6 +1,0 @@
-/Users/verdagon/BenchmarkRL/csharp/BenchmarkRL/bin/Debug/BenchmarkRL.exe
-/Users/verdagon/BenchmarkRL/csharp/BenchmarkRL/bin/Debug/BenchmarkRL.pdb
-/Users/verdagon/BenchmarkRL/csharp/BenchmarkRL/obj/Debug/BenchmarkRL.csprojAssemblyReference.cache
-/Users/verdagon/BenchmarkRL/csharp/BenchmarkRL/obj/Debug/BenchmarkRL.csproj.CoreCompileInputs.cache
-/Users/verdagon/BenchmarkRL/csharp/BenchmarkRL/obj/Debug/BenchmarkRL.exe
-/Users/verdagon/BenchmarkRL/csharp/BenchmarkRL/obj/Debug/BenchmarkRL.pdb

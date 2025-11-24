@@ -81,6 +81,7 @@ fn main() {
 --seed N        Uses given seed for level generation. If absent, random.
 --display N     0 to not display, 1 to display.
 --turn_delay N  Sleeps for N ms between each turn.
+--only-level    Only generate and display the level, then exit.
 "
             );
             return;
@@ -100,6 +101,7 @@ fn main() {
     );
     let display = get_int_arg(&args, "--display", 1) != 0;
     let turn_delay = get_int_arg(&args, "--turn_delay", 100);
+    let only_level = args.iter().any(|x| x == "--only-level");
 
     benchmark_rl::benchmark_rl(
         seed,
@@ -108,5 +110,6 @@ fn main() {
         num_levels,
         display,
         turn_delay,
+        only_level,
     );
 }
